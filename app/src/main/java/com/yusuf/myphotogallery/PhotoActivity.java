@@ -52,10 +52,11 @@ public class PhotoActivity extends AppCompatActivity {
         String title=binding.titleText.toString();
         String place=binding.placeText.toString();
         String date=binding.dateText.toString();
-        Bitmap newImage=toSmallImage(selectedImage,350);
 
+        Bitmap newImage=toSmallImage(selectedImage,350);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         newImage.compress(Bitmap.CompressFormat.PNG,50,byteArrayOutputStream);
+
         byte [] byteImage = byteArrayOutputStream.toByteArray();
 
     }
