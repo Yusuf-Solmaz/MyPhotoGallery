@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -23,6 +24,9 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.yusuf.myphotogallery.databinding.ActivityPhotoBinding;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 public class PhotoActivity extends AppCompatActivity {
 
@@ -45,8 +49,33 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     public void save(View view){
+        String title=binding.titleText.toString();
+        String place=binding.placeText.toString();
+        String date=binding.dateText.toString();
+        Bitmap newImage=toSmallImage(selectedImage,350);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        newImage.compress(Bitmap.CompressFormat.PNG,50,byteArrayOutputStream);
+        byte [] byteImage = byteArrayOutputStream.toByteArray();
 
     }
+
+    public Bitmap toSmallImage(@NonNull Bitmap image, int maxSize){
+        int width = image.getWidth();
+        int height = image.getHeight();
+        float sizeRatio = (float) width/height;
+
+        if (sizeRatio>1){
+            width = maxSize;
+            height = (int) (width/sizeRatio);
+        }
+        else {
+            height = maxSize;
+            width = (int) (height*sizeRatio);
+        }
+        return Bitmap.createScaledBitmap(image,width,height,true);
+    }
+
 
     public void selectImage(View view){
 
