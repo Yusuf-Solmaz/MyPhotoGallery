@@ -6,4 +6,68 @@
     android:layout_height="match_parent"
     tools:context=".PhotoActivity">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="274dp"
+        android:layout_height="228dp"
+        android:layout_marginTop="28dp"
+        android:onClick="selectImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/select" />
+
+    <EditText
+        android:id="@+id/titleText"
+        android:layout_width="276dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="44dp"
+        android:ems="10"
+        android:hint="Title:"
+        android:inputType="text"
+        android:textColor="#18277A"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+
+    <EditText
+        android:id="@+id/dateText"
+        android:layout_width="276dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="28dp"
+        android:ems="10"
+        android:hint="Date: "
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleText" />
+    <EditText
+        android:id="@+id/placeText"
+        android:layout_width="276dp"
+        android:layout_height="53dp"
+        android:layout_marginTop="28dp"
+        android:ems="10"
+        android:hint="Place: "
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateText" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="113dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="80dp"
+        android:backgroundTint="#4CAF50"
+        android:onClick="save"
+        android:text="Save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/placeText" />
 </androidx.constraintlayout.widget.ConstraintLayout>
