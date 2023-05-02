@@ -26,11 +26,12 @@
         android:ems="10"
         android:hint="Title:"
         android:inputType="text"
-        android:textColor="#18277A"
+        android:textColor="#EC9E85"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        />
 
 
     <EditText
@@ -41,12 +42,15 @@
         android:ems="10"
         android:hint="Date: "
         android:inputType="text"
+        android:textColor="#4EE6E6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleText" />
+        app:layout_constraintTop_toBottomOf="@+id/titleText"
+        />
 
     <EditText
+        android:textColor="#F1E570"
         android:id="@+id/placeText"
         android:layout_width="276dp"
         android:layout_height="53dp"
@@ -57,7 +61,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateText" />
+        app:layout_constraintTop_toBottomOf="@+id/dateText"
+        />
 
     <Button
         android:id="@+id/saveButton"

@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             while (cursor.moveToNext()){
                 String title = cursor.getString(titleIx);
                 int id = cursor.getInt(idIx);
-                PhotoDao photo = new PhotoDao(id,title);
+                PhotoDao photo = new PhotoDao(id,title+"\n \n");
 
                 photoDaos.add(photo);
             }
