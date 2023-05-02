@@ -13,6 +13,8 @@ import android.Manifest;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -36,6 +38,8 @@ public class PhotoActivity extends AppCompatActivity {
     ActivityResultLauncher<String> permissionLauncher;
     Bitmap selectedImage;
 
+    SQLiteDatabase database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +62,25 @@ public class PhotoActivity extends AppCompatActivity {
         newImage.compress(Bitmap.CompressFormat.PNG,50,byteArrayOutputStream);
 
         byte [] byteImage = byteArrayOutputStream.toByteArray();
+
+
+        try {
+            database = this.openOrCreateDatabase("Images",MODE_PRIVATE,null);
+            database.execSQL("create table if not exists images (id INTEGER primary key,title VARCHAR,place VARCHAR, date VARCHAR,image BLOB)");
+            String sql = "insert into images (title,place,date,image) values (?,?,?,?)";
+            SQLiteStatement statement = database.compileStatement(sql);
+            statement.bindString(1,title);
+            statement.bindString(2,place);
+            statement.bindString(3,date);
+            statement.bindBlob(4,byteImage);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(PhotoActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
 
     }
 
