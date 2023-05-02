@@ -1,5 +1,6 @@
 package com.yusuf.myphotogallery;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -11,6 +12,10 @@ import android.Manifest;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -25,6 +30,7 @@ public class PhotoActivity extends AppCompatActivity {
 
     ActivityResultLauncher<Intent> resultLauncher;
     ActivityResultLauncher<String> permissionLauncher;
+    Bitmap selectedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,9 @@ public class PhotoActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
+        //Permission Request
+        registerLauncher();
+
     }
 
     public void save(View view){
@@ -40,30 +49,87 @@ public class PhotoActivity extends AppCompatActivity {
     }
 
     public void selectImage(View view){
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)){
-                Snackbar.make(view,"Permission needed for upload images.",Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
 
-                    }
-                }).show();
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU){
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED){
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_MEDIA_IMAGES)){
+                    Snackbar.make(view,"Permission needed for upload images.",Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+                        }
+                    }).show();
+                }
+                else{
+                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+                }
             }
-            else{
-
+            else {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                resultLauncher.launch(galleryIntent);
             }
         }
         else {
-            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.READ_EXTERNAL_STORAGE)){
+                    Snackbar.make(view,"Permission needed for upload images.",Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                        }
+                    }).show();
+                }
+                else{
+                    permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                }
+            }
+            else {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                resultLauncher.launch(galleryIntent);
+            }
         }
+
+
     }
 
     private void registerLauncher(){
+        resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == RESULT_OK){
+                    Intent intentFromData = result.getData();
+                    if (intentFromData != null){
+                        Uri imageUri = intentFromData.getData();
+                        //binding.imageView.setImageURI(imageUri);
+
+                        try {
+                            if (Build.VERSION.SDK_INT >= 28){
+                                ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(),imageUri);
+                                selectedImage = ImageDecoder.decodeBitmap(source);
+                                binding.imageView.setImageBitmap(selectedImage);
+                            }
+                            else {
+                                selectedImage = MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
+                                binding.imageView.setImageBitmap(selectedImage);
+                            }
+
+                        }
+                        catch (Exception e){
+                            Toast.makeText(PhotoActivity.this,"Something went wrong.",Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+
+            }
+        });
         permissionLauncher =registerForActivityResult(new ActivityResultContracts.RequestPermission(), new ActivityResultCallback<Boolean>() {
             @Override
             public void onActivityResult(Boolean result) {
                 if (result){
                     Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    resultLauncher.launch(galleryIntent);
                 }
                 else {
                     Toast.makeText(PhotoActivity.this,"Permission Needed",Toast.LENGTH_LONG).show();
