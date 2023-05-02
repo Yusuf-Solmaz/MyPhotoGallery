@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -13,9 +14,11 @@ import android.Manifest;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
@@ -47,17 +50,59 @@ public class PhotoActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
+        database = this.openOrCreateDatabase("Images",MODE_PRIVATE,null);
+
         //Permission Request
         registerLauncher();
 
+        Intent intent=getIntent();
+        String chosenPage=intent.getStringExtra("info");
+
+        if (chosenPage.equals("new")){
+            binding.titleText.setText("");
+            binding.imageView.setImageResource(R.drawable.select);
+            binding.dateText.setText("");
+            binding.placeText.setText("");
+            binding.saveButton.setVisibility(View.VISIBLE);
+        }
+        else {
+            int photoId = intent.getIntExtra("photoId",0);
+
+            try {
+
+                Cursor cursor = database.rawQuery("select * from  images where id=?",new String[] {String.valueOf(photoId)});
+                int titleIx = cursor.getColumnIndex("title");
+                int placeIx = cursor.getColumnIndex("place");
+                int dateIx = cursor.getColumnIndex("date");
+                int imageIx = cursor.getColumnIndex("image");
+
+                while (cursor.moveToNext()){
+
+                    binding.titleText.setText(cursor.getString(titleIx));
+                    binding.placeText.setText(cursor.getString(placeIx));
+                    binding.dateText.setText(cursor.getString(dateIx));
+
+                    byte[] image = cursor.getBlob(imageIx);
+                    Bitmap bitmapImage = BitmapFactory.decodeByteArray(image,0,image.length);
+                    binding.imageView.setImageBitmap(bitmapImage);
+                }
+                cursor.close();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+
+            binding.saveButton.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void save(View view){
-        String title=binding.titleText.toString();
-        String place=binding.placeText.toString();
-        String date=binding.dateText.toString();
+        String title=binding.titleText.getText().toString();
+        String place=binding.placeText.getText().toString();
+        String date=binding.dateText.getText().toString();
 
-        Bitmap newImage=toSmallImage(selectedImage,350);
+        Bitmap newImage=toSmallImage(selectedImage,450);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         newImage.compress(Bitmap.CompressFormat.PNG,50,byteArrayOutputStream);
 
@@ -65,7 +110,7 @@ public class PhotoActivity extends AppCompatActivity {
 
 
         try {
-            database = this.openOrCreateDatabase("Images",MODE_PRIVATE,null);
+
             database.execSQL("create table if not exists images (id INTEGER primary key,title VARCHAR,place VARCHAR, date VARCHAR,image BLOB)");
             String sql = "insert into images (title,place,date,image) values (?,?,?,?)";
             SQLiteStatement statement = database.compileStatement(sql);
@@ -73,6 +118,10 @@ public class PhotoActivity extends AppCompatActivity {
             statement.bindString(2,place);
             statement.bindString(3,date);
             statement.bindBlob(4,byteImage);
+
+            Toast.makeText(PhotoActivity.this,"Saved",Toast.LENGTH_SHORT).show();
+            statement.execute();
+
         }
         catch (Exception e){
             e.printStackTrace();
